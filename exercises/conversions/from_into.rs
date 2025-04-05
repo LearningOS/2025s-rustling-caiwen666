@@ -7,6 +7,8 @@
 // Execute `rustlings hint from_into` or use the `hint` watch subcommand for a
 // hint.
 
+use std::convert::TryInto;
+
 #[derive(Debug)]
 struct Person {
     name: String,
@@ -40,10 +42,26 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
-
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        let mut res = Default::default();
+        if s.len() > 0 {
+            let arr: Result<[&str; 2], _> = s.split(",").collect::<Vec<&str>>().try_into();
+            if arr.is_err() {
+                return res
+            }
+            let [name, age] = arr.unwrap();
+            if name.len() == 0 {
+                return res
+            }
+            let age: Result<usize, _> = age.parse();
+            if age.is_err() {
+                return res
+            }
+            res.name = name.to_string();
+            res.age = age.unwrap();
+        }
+        res
     }
 }
 
