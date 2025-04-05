@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,18 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut now = self.count;
+        loop {
+            let parent = self.parent_idx(now);
+            if parent == 0 || !(self.comparator)(&self.items[now], &self.items[parent]){
+                break;
+            } else {
+                self.items.swap(now, parent);
+                now = parent;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +67,13 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+        if right > self.count || (self.comparator)(&self.items[left], &self.items[right]) {
+            left
+        } else {
+            right
+        }
     }
 }
 
@@ -84,8 +99,21 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        let res = self.items.swap_remove(1);
+        self.count -= 1;
+        let mut now = 1;
+        loop {
+            let next = self.smallest_child_idx(now);
+            if !self.children_present(now) || (self.comparator)(&self.items[now], &self.items[next]) {
+                break;
+            }
+            self.items.swap(now, next);
+            now = next;
+        }
+        Some(res)
     }
 }
 
@@ -129,6 +157,7 @@ mod tests {
         heap.add(2);
         heap.add(9);
         heap.add(11);
+        println!("{:?}", heap.items);
         assert_eq!(heap.len(), 4);
         assert_eq!(heap.next(), Some(2));
         assert_eq!(heap.next(), Some(4));
